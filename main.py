@@ -46,6 +46,31 @@ def obtener_tipos_hurto():
         conn.close()
 
 
+
+@app.get("/tipo-hurto/{id_tipohurto}")
+def obtener_tipo_hurto_por_id(id_tipohurto: int):
+    conn = database.get_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT * FROM tipo_hurto WHERE id_tipohurto = %s;",
+            (id_tipohurto,)
+        )
+        tipo = cursor.fetchone()
+        cursor.close()
+
+        if not tipo:
+            raise HTTPException(status_code=404, detail="Tipo de hurto no encontrado")
+
+        return tipo
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+
+
 @app.put("/tipo-hurto/{id_tipohurto}")
 def actualizar_tipo_hurto(id_tipohurto: int, datos: TipoHurtoSchema):
     conn = database.get_connection()
@@ -63,6 +88,8 @@ def actualizar_tipo_hurto(id_tipohurto: int, datos: TipoHurtoSchema):
         conn.commit()
         cursor.close()
         return tipo_actualizado
+    except HTTPException:
+        raise
     except Exception as e:
         conn.rollback()
         raise HTTPException(status_code=500, detail=str(e))
@@ -87,6 +114,8 @@ def eliminar_tipo_hurto(id_tipohurto: int):
         conn.commit()
         cursor.close()
         return {"mensaje": "Tipo de hurto eliminado", "datos": tipo_eliminado}
+    except HTTPException:
+        raise
     except Exception as e:
         conn.rollback()
         raise HTTPException(status_code=500, detail=str(e))
@@ -135,6 +164,28 @@ def obtener_hurtos():
         conn.close()
 
 
+# NVO: OBTENER UN HURTO POR ID
+@app.get("/hurto/{id}")
+def obtener_hurto_por_id(id: int):
+    conn = database.get_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM hurto WHERE id = %s;", (id,))
+        hurto = cursor.fetchone()
+        cursor.close()
+
+        if not hurto:
+            raise HTTPException(status_code=404, detail="Registro de hurto no encontrado")
+
+        return hurto
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+
+
 @app.put("/hurto/{id}")
 def actualizar_hurto(id: int, datos: HurtoSchema):
     conn = database.get_connection()
@@ -157,6 +208,8 @@ def actualizar_hurto(id: int, datos: HurtoSchema):
         conn.commit()
         cursor.close()
         return hurto_actualizado
+    except HTTPException:
+        raise
     except Exception as e:
         conn.rollback()
         raise HTTPException(status_code=500, detail=str(e))
@@ -181,6 +234,8 @@ def eliminar_hurto(id: int):
         conn.commit()
         cursor.close()
         return {"mensaje": "Hurto eliminado", "datos": hurto_eliminado}
+    except HTTPException:
+        raise
     except Exception as e:
         conn.rollback()
         raise HTTPException(status_code=500, detail=str(e))
