@@ -1,4 +1,3 @@
-
 import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -15,6 +14,13 @@ def crear_tablas():
     conn = get_connection()
     try:
         with conn.cursor() as cursor:
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS usuarios_app (
+                    id SERIAL PRIMARY KEY,
+                    username VARCHAR(100) UNIQUE NOT NULL,
+                    password_hash VARCHAR(255) NOT NULL
+                );
+            """)
             
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS tipo_hurto (
@@ -34,7 +40,6 @@ def crear_tablas():
                 );
             """)
         
-      
         conn.commit()
         print("Tablas verificadas/creadas exitosamente en Neon.")
     except Exception as e:
@@ -42,3 +47,6 @@ def crear_tablas():
         print(f"Error al crear las tablas: {e}")
     finally:
         conn.close()
+
+if __name__ == "__main__":
+    crear_tablas()
